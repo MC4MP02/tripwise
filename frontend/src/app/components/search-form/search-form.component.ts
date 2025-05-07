@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // For ngModel
-import { CommonModule } from '@angular/common'; // For ngIf, ngFor, etc.
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { ApiService } from '../../services/api.service';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './search-form.component.html',
-  styleUrl: './search-form.component.css'
+  styleUrl: './search-form.component.css',
 })
 export class SearchFormComponent {
   destination: string = '';
@@ -18,25 +18,25 @@ export class SearchFormComponent {
 
   constructor(private apiService: ApiService) {}
 
-  onSearch(destinationQuery: string): void { 
+  onSearch(destinationQuery: string): void {
     this.error = null;
     this.placesResult = null;
     this.weatherResult = null;
 
-    if (!destinationQuery.trim()) { 
-      this.error = "Please enter a destination.";
+    if (!destinationQuery.trim()) {
+      this.error = 'Please enter a destination.';
       return;
     }
 
-    this.apiService.getPlaces(destinationQuery).subscribe({ // Use the method parameter
+    this.apiService.getPlaces(destinationQuery).subscribe({
       next: (data) => {
         this.placesResult = data;
-        this.fetchWeather(destinationQuery); // Use the method parameter
+        this.fetchWeather(destinationQuery);
       },
       error: (err) => {
         console.error('Error fetching places:', err);
         this.error = 'Failed to fetch places. Check the console for details.';
-      }
+      },
     });
   }
 
@@ -47,9 +47,10 @@ export class SearchFormComponent {
       },
       error: (err) => {
         console.error('Error fetching weather:', err);
-        // Optionally update the error message or handle weather errors separately
-        this.error = (this.error ? this.error + ' ' : '') + 'Failed to fetch weather.';
-      }
+
+        this.error =
+          (this.error ? this.error + ' ' : '') + 'Failed to fetch weather.';
+      },
     });
   }
 }
