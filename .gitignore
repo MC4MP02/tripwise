@@ -3,3 +3,6 @@ backend/venv
 .angular
 backend/.env
 node_modules
+
+backend/services/__pycache__
+backend/__pycache__
