@@ -1,1 +1,26 @@
-/* Add your styles here */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+input[type="text"] {
+  width: 95%;
+  border: 1px solid #ccc;
+}
+input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+input[type="text"].error {
+  border-color: red;
+}
+input[type="text"].error:focus {
+  border-color: red;
+}
+input[type="text"].success {
+  border-color: green;
+}

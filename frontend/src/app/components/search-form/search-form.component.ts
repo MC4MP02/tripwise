@@ -14,6 +14,7 @@ export class SearchFormComponent {
   destination: string = '';
   placesResult: any = null;
   weatherResult: any = null;
+  loading: boolean = false;
   error: string | null = null;
 
   constructor(private apiService: ApiService) {}
@@ -22,6 +23,7 @@ export class SearchFormComponent {
     this.error = null;
     this.placesResult = null;
     this.weatherResult = null;
+    this.loading = true;
 
     if (!destinationQuery.trim()) {
       this.error = 'Please enter a destination.';
@@ -30,6 +32,7 @@ export class SearchFormComponent {
 
     this.apiService.getPlaces(destinationQuery).subscribe({
       next: (data) => {
+        this.loading = false;
         this.placesResult = data;
         this.fetchWeather(destinationQuery);
       },
