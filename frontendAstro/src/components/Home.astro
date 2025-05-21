@@ -1,1 +1,19 @@
-<div class="home"></div>
+---
+import SearchBar from "./SearchBar.jsx";
+---
+
+<div class="home flex flex-col items-center justify-center h-screen bg-gray-100">
+  <header class="mb-[20px]">
+    <div class="flex flex-col items-center justify-center w-full p-5 text-white rounded-2xl">
+      <h1 class="text-4xl text-black">Travel Planner</h1>
+      <img src="assets/tripwise_logo.png" alt="tripwise_logo" class="w-[100px] h-auto mt-[10px]" />
+    </div>
+  </header>
+
+  <main class="w-fit max-w-[90%] p-5 bg-white rounded-2xl shadow-lg flex flex-col gap-y-1 items-center justify-center">
+    <h2 class="text-xl pb-5">Buscar el destino:</h2>
+    <div class="w-full flex flex-col items-center justify-center">
+      <SearchBar client:load />
+    </div>
+  </main>
+</div>
