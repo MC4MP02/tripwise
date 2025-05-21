@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import MapWithPlaces from './MapWithPlaces.jsx';
 
 
 export default function SearchBar() {
@@ -38,62 +39,80 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <form onSubmit={handleSubmit} className='gap-4 flex justify-center'>
-        <input
-          className='border-2 border-gray-300 rounded-md p-2'
-          type="text"
-          placeholder="Introduce un destino"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button 
-          type="submit"
-          className='cursor-pointer rounded-2xl p-2 border-2 border-blue-600 hover:scale-105 bg-blue-400 font-semibold text-white'
-          >
-          {loading ? "Buscando..." : "Buscar"}
-        </button>
-      </form>
-      {!loading && lugar && (
-       <div className='flex flex-col items-center justify-center w-screen gap-x-4 mt-5'>
-          {lugar && (<h1 className='text-3xl mb-8'>Información del destino</h1>)}
-          <div className='flex flex-row items-center justify-center w-full gap-x-10'>
-            <div>
-              {lugar && (
-                <div>
-                  <h2>{lugar.nombre}</h2>
-                  <p>📍 {lugar.direccion}</p>
-                  <p>📌 Tipo: {lugar.tipos[0]}</p>
-                  {lugar.foto_ref && (
-                    <img src={`http://localhost:5000/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
-                    className="rounded shadow w-52 h-auto" />                
-                  )}
+    <div className='w-full'>
+      {!lugar && (
+        <header>
+          <div class="flex flex-col items-center justify-center w-full p-5 text-white rounded-2xl">
+            <h1 class="text-4xl text-black">Travel Planner</h1>
+            <img src="assets/tripwise_logo.png" alt="tripwise_logo" class="w-[100px] h-auto pt-[10px]" />
+          </div>
+        </header>
+      )}
+      <div className="flex flex-col items-center justify-center w-full px-20">
+        <form onSubmit={handleSubmit} className='gap-4 flex justify-center'>
+          <input
+            className='border-2 border-gray-300 rounded-md p-2'
+            type="text"
+            placeholder="Introduce un destino"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            />
+          <button 
+            type="submit"
+            className='cursor-pointer rounded-2xl p-2 border-2 border-blue-600 hover:scale-105 bg-blue-400 font-semibold text-white'
+            >
+            {loading ? "Buscando..." : "Buscar"}
+          </button>
+        </form>
+        {!loading && lugar && (
+          <div className='flex flex-row items-center justify-between w-full gap-x-10'>
+          {lugar && (
+            <div className='flex flex-row items-center w-full h-full gap-x-10'>
+              <div>
+                <h2>{lugar.nombre}</h2>
+                <p>📍 {lugar.direccion}</p>
+                <p>📌 Tipo: {lugar.tipos[0]}</p>
+                {lugar.foto_ref && (
+                  <img src={`http://localhost:5000/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
+                  className="rounded shadow w-52 h-auto" />                
+                )}
+              </div>
+
+              {wiki && (
+                <div className='max-w-80'>
+                  {wiki["extract"]}
                 </div>
               )}
             </div>
-            {wiki && (
-              <div className='max-w-80'>
-                {wiki["extract"]}
-              </div>
-            )}
-          </div>
+          )}
 
-          <div className='flex flex-col items-center justify-center w-full'>
-            {clima && (<h1 className='text-3xl'>Información del clima actual</h1>)}
-            {clima && (
-              <div>
-                <p>🌡️ {clima.temperatura}°C - {clima.descripcion}</p>
-                <p>🌧️ Lluvia: {clima.lluvia ? 'Si' : 'No'}</p>
-                <p>💧 Humedad: {clima.humedad}%</p>
-                <p>💨 Viento: {clima.viento} km/h</p>
-                <p>🥵 Sensacion: {clima.sensacion_unidad}ºC - {clima.sensacion}</p>
-              </div>
-            )}
-          </div>
+          {clima && (
+            <div className='flex flex-col items-center justify-center w-full'>
+                <div>
+                  <p>🌡️ {clima.temperatura}°C - {clima.descripcion}</p>
+                  <p>🌧️ Lluvia: {clima.lluvia ? 'Si' : 'No'}</p>
+                  <p>💧 Humedad: {clima.humedad}%</p>
+                  <p>💨 Viento: {clima.viento} km/h</p>
+                  <p>🥵 Sensacion: {clima.sensacion_unidad}ºC - {clima.sensacion}</p>
+                </div>
+            </div>
+          )}
+
 
         </div>
-      )}
+        )}
 
-    </div>
+        {lugar && (
+          
+          <div className='flex w-full justify-center items-center pt-20'>
+            <MapWithPlaces
+              destination={lugar.nombre}
+              client:load
+              />
+          </div>
+        )}
+
+      </div>
+  </div>
   );
 }

@@ -2,8 +2,15 @@
 import Home from "../components/Home.astro";
 import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
+
+const PUBLIC_GOOGLE_API_KEY = import.meta.env.PUBLIC_GOOGLE_API_KEY;
 ---
 
 <Layout>
   <Home />
 </Layout>
+
+<script
+  src={`https://maps.googleapis.com/maps/api/js?key=${PUBLIC_GOOGLE_API_KEY}&libraries=places&loading=async`}
+  async
+  defer></script>
