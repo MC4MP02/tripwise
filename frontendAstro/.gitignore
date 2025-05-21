@@ -17,6 +17,8 @@ pnpm-debug.log*
 .env
 .env.production
 
+/frontendAstro/.env
+
 # macOS-specific files
 .DS_Store
 
