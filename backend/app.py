@@ -13,6 +13,7 @@ from flask_cors import CORS
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 app = Flask(__name__)
 CORS(app)  # Permitir peticiones del frontend Angular
@@ -25,7 +26,7 @@ def places():
 @app.route('/api/weather')
 def weather():
     city = request.args.get('city')
-    print(get_weather(city))
+            
     return jsonify(get_weather(city))
 
 @app.route('/api/translate')
@@ -58,6 +59,35 @@ def wiki():
     url = f"https://es.wikipedia.org/api/rest_v1/page/summary/{lugar}"
 
     response = requests.get(url)
+
+    if response.status_code != 200:
+        return "Error en la peticion"
+    
+    return Response(response.content, content_type=response.headers['Content-Type'])
+
+@app.route('/api/ia')
+def ia():
+    lugar = request.args.get('lugar')
+    if not lugar:
+        return "Falta el Lugar", 400
+    
+    url = f"https://openrouter.ai/api/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+    }
+
+    data = {
+        "model": "meta-llama/llama-3.3-8b-instruct:free",
+        "messages": [
+            {
+                "role": "user",
+                "content": f"Dame recomendaciones de itinerarios en {lugar}. Quiero que lo hagas MUY resumido y que respondas directamente y en español."
+            }
+        ],
+    }
+
+    response = requests.post(url, headers=headers, json=data)
 
     if response.status_code != 200:
         return "Error en la peticion"

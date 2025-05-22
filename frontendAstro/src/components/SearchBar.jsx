@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MapWithPlaces from './MapWithPlaces.jsx';
 
 
@@ -8,6 +8,32 @@ export default function SearchBar() {
   const [clima, setClima] = useState(null);
   const [loading, setLoading] = useState(false);
   const [wiki, setWiki] = useState(null)
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (window.google?.maps?.places?.Autocomplete && inputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: [],
+        });
+
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          /* if (place.formatted_address) {
+            setQuery(place.formatted_address);
+          } else if (place.name) {
+            setQuery(place.name);
+          } */
+          setQuery(place.name);
+        });
+
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();    
@@ -27,7 +53,7 @@ export default function SearchBar() {
       setWiki(dataWiki)
 
       // Llamada al backend: clima
-      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(query)}`);
+      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(dataLugar["direccion"])}`);
       const dataClima = await resClima.json();
       setClima(dataClima);
 
@@ -38,19 +64,33 @@ export default function SearchBar() {
     }
   };
 
+  function formatearTipos(tipos) {
+    if (!tipos || !tipos.length) return "";
+
+    return tipos
+      .map((tipo, index) => {
+        if (index < 4) {
+          tipo = tipo.replace(/_/g, " ");
+          return tipo.charAt(0).toUpperCase() + tipo.slice(1);
+        }
+      })
+      .join(", ");
+  }
+
   return (
     <div className='w-full'>
       {!lugar && (
         <header>
-          <div class="flex flex-col items-center justify-center w-full p-5 text-white rounded-2xl">
-            <h1 class="text-4xl text-black">Travel Planner</h1>
-            <img src="assets/tripwise_logo.png" alt="tripwise_logo" class="w-[100px] h-auto pt-[10px]" />
+          <div className="flex flex-col items-center justify-center w-full p-5 text-white rounded-2xl">
+            <h1 className="text-4xl text-black">Travel Planner</h1>
+            <img src="assets/tripwise_logo.png" alt="tripwise_logo" className="w-[100px] h-auto pt-[10px]" />
           </div>
         </header>
       )}
       <div className="flex flex-col items-center justify-center w-full px-20">
-        <form onSubmit={handleSubmit} className='gap-4 flex justify-center'>
+        <form onSubmit={handleSubmit} className='gap-4 flex flex-col justify-center items-center'>
           <input
+            ref={inputRef}
             className='border-2 border-gray-300 rounded-md p-2'
             type="text"
             placeholder="Introduce un destino"
@@ -65,46 +105,43 @@ export default function SearchBar() {
           </button>
         </form>
         {!loading && lugar && (
-          <div className='flex flex-row items-center justify-between w-full gap-x-10'>
-          {lugar && (
-            <div className='flex flex-row items-center w-full h-full gap-x-10'>
-              <div>
+            <div className='flex flex-row items-start justify-between w-[70%] h-full gap-x-10 relative pt-6'>
+              <div className='flex h-full flex-col'>
                 <h2>{lugar.nombre}</h2>
                 <p>📍 {lugar.direccion}</p>
-                <p>📌 Tipo: {lugar.tipos[0]}</p>
-                {lugar.foto_ref && (
-                  <img src={`http://localhost:5000/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
-                  className="rounded shadow w-52 h-auto" />                
-                )}
+                <p>📌 Tipo: {formatearTipos(lugar.tipos)}</p>
+                {lugar.rating && (<p>⭐ Valoración: {lugar.rating}</p>)}
+                <div className='flex w-full items-center justify-center'>
+                  {lugar.foto_ref && (
+                    <img src={`http://localhost:5000/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
+                    className="rounded shadow w-52 h-auto max-h-52 mt-8" />                
+                  )}
+                </div>
               </div>
 
               {wiki && (
-                <div className='max-w-80'>
+                <div className='max-w-[450px] h-full flex flex-col'>
                   {wiki["extract"]}
                 </div>
               )}
-            </div>
-          )}
 
-          {clima && (
-            <div className='flex flex-col items-center justify-center w-full'>
-                <div>
+              {clima && (
+                <div className='h-full flex flex-col justify-center'>
                   <p>🌡️ {clima.temperatura}°C - {clima.descripcion}</p>
                   <p>🌧️ Lluvia: {clima.lluvia ? 'Si' : 'No'}</p>
                   <p>💧 Humedad: {clima.humedad}%</p>
                   <p>💨 Viento: {clima.viento} km/h</p>
                   <p>🥵 Sensacion: {clima.sensacion_unidad}ºC - {clima.sensacion}</p>
                 </div>
+                
+              )}
             </div>
-          )}
 
-
-        </div>
+        
         )}
 
         {lugar && (
-          
-          <div className='flex w-full justify-center items-center pt-20'>
+          <div className='flex w-full justify-center items-center pt-6'>
             <MapWithPlaces
               destination={lugar.nombre}
               client:load

@@ -32,6 +32,17 @@ def get_weather(city: str):
     weather_params = {"apikey": api_key, "details": "true", "language": "es-ES"}
 
     weather_response = requests.get(url_clima, params=weather_params)
+    if weather_response.status_code != 200:
+       return {
+            "temperatura": "-",
+            "descripcion": "-",
+            "lluvia": False,
+            "humedad": "-",
+            "viento": "-",
+            "sensacion": "-",
+            "sensacion_unidad": "-",
+        }
+    
     clima_data  = weather_response.json()
 
     clima = clima_data[0]
