@@ -90,7 +90,7 @@ def ia():
     response = requests.post(url, headers=headers, json=data)
 
     if response.status_code != 200:
-        return "Error en la peticion"
+        return {"Error en la peticion": response.content}
     
     return Response(response.content, content_type=response.headers['Content-Type'])
 

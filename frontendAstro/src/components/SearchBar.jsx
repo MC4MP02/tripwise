@@ -48,12 +48,12 @@ export default function SearchBar() {
       setLugar(dataLugar);
 
       // Llamada al backend: wiki
-      const resWiki = await fetch(`http://localhost:5000/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"])}`)
+      const resWiki = await fetch(`http://localhost:5000/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}`)
       const dataWiki = await resWiki.json();
       setWiki(dataWiki)
 
       // Llamada al backend: clima
-      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(dataLugar["direccion"])}`);
+      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(dataLugar["direccion"]).normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`);
       const dataClima = await resClima.json();
       setClima(dataClima);
 

@@ -104,7 +104,7 @@ export default function MapWithPlaces({ destination }) {
       {!loading && (
         <button onClick={handleToggleResumen}
         className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:scale-110 hover:bg-blue-600 trasition-all duration-300"> 
-          Generar resumen IA
+          Generar itinerario
         </button>
       )}
       {loading && (
@@ -129,7 +129,7 @@ export default function MapWithPlaces({ destination }) {
         </div>
          {mostrarResumen && (
           <div className="w-1/2 p-6 bg-gray-100 border-l border-gray-300 overflow-auto">
-            <h2 className="text-xl font-semibold mb-4">Itinerario IA</h2>
+            <h2 className="text-xl font-semibold mb-4">Itinerario sugerido</h2>
             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{textoIA}</p>
           </div>
         )}
