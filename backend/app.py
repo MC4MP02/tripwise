@@ -3,7 +3,7 @@ import requests
 
 from services.google_places import get_places
 from services.weather import get_weather
-from services.deepL import translate_text
+from services.deepL import translate_text, get_supported_languages
 
 from dotenv import load_dotenv
 import os
@@ -34,6 +34,36 @@ def translate():
     text = request.args.get('text')
     lang = request.args.get('lang', 'EN')
     return jsonify(translate_text(text, lang))
+
+@app.route('/api/languages')
+def languages():
+    return jsonify(get_supported_languages())
+
+@app.route('/api/ia')
+def ia_request():
+    lugar = request.args.get('lugar')
+    
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "HTTP-Referer": "http://localhost:5000",
+        "Content-Type": "application/json"
+    }
+    prompt = f"""Genera exactamente entre 3 y 5 actividades turísticas imprescindibles para visitar {lugar}.
+    Responde SOLAMENTE en este formato sin ningún texto adicional:
+
+    - Actividad 1
+    - Actividad 2
+    - Actividad 3
+    - ... (hasta 5 actividades)"""
+    
+    data = {
+        "model": "mistralai/mistral-7b-instruct",
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    
+    response = requests.post(url, json=data, headers=headers)
+    return response.json()
 
 @app.route('/api/foto')
 def obtener_foto():
