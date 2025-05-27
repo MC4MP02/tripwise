@@ -20,6 +20,8 @@ const DEFAULT_TEXTS = {
   }
 };
 
+const API_URL = "https://europe-west1-valid-unfolding-461111-m1.cloudfunctions.net/tripwise-backend";
+
 export default function MapWithPlaces({ destination, onLanguageChange }) {
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
@@ -115,7 +117,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
     try {
       setTranslating(true);
       const response = await fetch(
-        `http://localhost:5000/api/translate?text=${encodeURIComponent(text)}&lang=${currentLanguage}`
+        `${API_URL}/api/translate?text=${encodeURIComponent(text)}&lang=${currentLanguage}`
       );
       const data = await response.json();
       setTranslatedTexts(prev => ({
@@ -149,7 +151,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
       // Traducir textos existentes
       if (textoIA) {
         const response = await fetch(
-          `http://localhost:5000/api/translate?text=${encodeURIComponent(textoIA)}&lang=${newLanguage}`
+          `${API_URL}/api/translate?text=${encodeURIComponent(textoIA)}&lang=${newLanguage}`
         );
         const data = await response.json();
         setTranslatedTexts(prev => ({
@@ -163,7 +165,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
       const translatedButtons = {};
       for (const [key, text] of Object.entries(buttonTexts)) {
         const response = await fetch(
-          `http://localhost:5000/api/translate?text=${encodeURIComponent(text)}&lang=${newLanguage}`
+          `${API_URL}/api/translate?text=${encodeURIComponent(text)}&lang=${newLanguage}`
         );
         const data = await response.json();
         translatedButtons[key] = data.translated_text || text;
@@ -173,7 +175,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
       const translatedTypes = await Promise.all(
         PLACE_TYPES.map(async (type) => {
           const response = await fetch(
-            `http://localhost:5000/api/translate?text=${encodeURIComponent(type.label.split(' ')[1])}&lang=${newLanguage}`
+            `${API_URL}/api/translate?text=${encodeURIComponent(type.label.split(' ')[1])}&lang=${newLanguage}`
           );
           const data = await response.json();
           return {
@@ -206,14 +208,14 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
   const handleToggleResumen = async () => {
     setLoading(true);
     try {
-      const textoSimulado = await fetch(`http://localhost:5000/api/ia?lugar=${encodeURIComponent(destination)}`);
+      const textoSimulado = await fetch(`${API_URL}/api/ia?lugar=${encodeURIComponent(destination)}`);
       const dataSimulado = await textoSimulado.json();
       const itineraryText = dataSimulado.choices[0].message.content;
       setTextoIA(itineraryText);
 
       if (currentLanguage !== "ES") {
         const response = await fetch(
-          `http://localhost:5000/api/translate?text=${encodeURIComponent(itineraryText)}&lang=${currentLanguage}`
+          `${API_URL}/api/translate?text=${encodeURIComponent(itineraryText)}&lang=${currentLanguage}`
         );
         const data = await response.json();
         setTranslatedTexts(prev => ({

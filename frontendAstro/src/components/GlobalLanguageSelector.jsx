@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API_URL = "https://europe-west1-valid-unfolding-461111-m1.cloudfunctions.net/tripwise-backend";
+
 export default function GlobalLanguageSelector({ currentLanguage, onLanguageChange }) {
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -7,7 +9,7 @@ export default function GlobalLanguageSelector({ currentLanguage, onLanguageChan
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/languages');
+        const response = await fetch(`${API_URL}/api/languages`);
         const data = await response.json();
         const languagesList = Object.entries(data).map(([code, name]) => ({
           code,

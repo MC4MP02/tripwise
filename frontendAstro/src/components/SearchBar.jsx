@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import MapWithPlaces from './MapWithPlaces.jsx';
 
+const API_URL = "https://europe-west1-valid-unfolding-461111-m1.cloudfunctions.net/tripwise-backend";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
@@ -75,12 +76,12 @@ export default function SearchBar() {
 
     try {
       // Llamada al backend: info del lugar
-      const resLugar = await fetch(`http://localhost:5000/api/places?destination=${encodeURIComponent(query)}`);
+      const resLugar = await fetch(`${API_URL}/api/places?destination=${encodeURIComponent(query)}`);
       const dataLugar = await resLugar.json();
       setLugar(dataLugar);
 
       // Llamada al backend: wiki
-      const resWiki = await fetch(`http://localhost:5000/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}`);
+      const resWiki = await fetch(`${API_URL}/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}`);
       const dataWiki = await resWiki.json();
       setWiki(dataWiki.extract);
 
@@ -90,7 +91,7 @@ export default function SearchBar() {
       }
 
       // Llamada al backend: clima
-      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(query)}`);
+      const resClima = await fetch(`${API_URL}/api/weather?city=${encodeURIComponent(query)}`);
       const dataClima = await resClima.json();
       setClima(dataClima);
 
@@ -150,7 +151,7 @@ export default function SearchBar() {
                 {lugar.rating && (<p>⭐ Valoración: {lugar.rating}</p>)}
                 <div className='flex w-full items-center justify-center'>
                   {lugar.foto_ref && (
-                    <img src={`http://localhost:5000/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
+                    <img src={`${API_URL}/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
                     className="rounded shadow w-52 h-auto max-h-52 mt-8" />                
                   )}
                 </div>
