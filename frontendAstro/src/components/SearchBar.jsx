@@ -111,79 +111,127 @@ export default function SearchBar() {
   }
 
   return (
-    <div className='w-full'>
-      {!lugar && (
-        <header>
-          <div className="flex flex-col items-center justify-center w-full p-5 text-white rounded-2xl">
-            <h1 className="text-4xl text-black">Travel Planner</h1>
-            <img src="assets/tripwise_logo.png" alt="tripwise_logo" className="w-[100px] h-auto pt-[10px]" />
-          </div>
-        </header>
-      )}
-      <div className="flex flex-col items-center justify-center w-full px-20">
-        <form onSubmit={handleSubmit} className='gap-4 flex flex-col justify-center items-center'>
-          <input
-            ref={inputRef}
-            className='border-2 border-gray-300 rounded-md p-2'
-            type="text"
-            placeholder="Introduce un destino"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+    <div className='w-full max-w-full overflow-x-hidden'>
+      {!lugar ? (
+        // Vista inicial centrada
+        <div className="flex flex-col items-center justify-center min-h-[90vh] px-4">          <div className="text-center mb-6 flex flex-col items-center">
+            <h1 className="text-3xl md:text-4xl text-black">Travel Planner</h1>
+            <img 
+              src="assets/tripwise_logo.png" 
+              alt="tripwise_logo" 
+              className="w-[10em] h-auto mx-auto mt-7 mb-2" 
+              style={{ fontSize: 'inherit' }}
             />
-          <button 
-            type="submit"
-            className='cursor-pointer rounded-2xl p-2 border-2 border-blue-600 hover:scale-105 bg-blue-400 font-semibold text-white'
+          </div>
+            <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
+            <input
+              ref={inputRef}
+              className='w-full border-2 border-gray-300 rounded-md p-3 text-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+              type="text"
+              placeholder="Introduce un destino"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <button 
+              type="submit"
+              className='w-full px-6 py-3 text-lg cursor-pointer rounded-xl border-2 border-blue-600 hover:scale-105 bg-blue-500 hover:bg-blue-600 font-semibold text-white transition-all shadow-md mt-2'
             >
-            {loading ? "Buscando..." : "Buscar"}
-          </button>
-        </form>
-        {!loading && lugar && (
-            <div className='flex flex-row items-start justify-between w-[70%] h-full gap-x-10 relative pt-6'>
-              <div className='flex h-full flex-col'>
-                <h2>{lugar.nombre}</h2>
-                <p>📍 {lugar.direccion}</p>
-                <p>📌 Tipo: {formatearTipos(lugar.tipos)}</p>
-                {lugar.rating && (<p>⭐ Valoración: {lugar.rating}</p>)}
-                <div className='flex w-full items-center justify-center'>
-                  {lugar.foto_ref && (
-                    <img src={`${API_URL}/api/foto?photo_ref=${lugar.foto_ref}`} alt="Foto del lugar"
-                    className="rounded shadow w-52 h-auto max-h-52 mt-8" />                
-                  )}
-                </div>
+              {loading ? "Buscando..." : "Buscar"}
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center w-full px-4 md:px-6 lg:px-8">
+          {/* Barra de búsqueda en la parte superior */}
+          <div className="w-full max-w-2xl mx-auto pt-4 pb-6">
+            <SearchForm 
+              inputRef={inputRef}
+              query={query}
+              setQuery={setQuery}
+              loading={loading}
+              handleSubmit={handleSubmit}
+              className="flex flex-row gap-2 items-center"
+            />
+          </div>
+
+          <div className='w-full max-w-5xl mx-auto'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
+              {/* Información del lugar */}
+              <div className='bg-white p-3 rounded-lg shadow-md'>
+                <h2 className="text-lg font-semibold mb-2">{lugar.nombre}</h2>
+                <p className="text-sm mb-1">📍 {lugar.direccion}</p>
+                <p className="text-sm mb-1">📌 Tipo: {formatearTipos(lugar.tipos)}</p>
+                {lugar.rating && (<p className="text-sm mb-2">⭐ Valoración: {lugar.rating}</p>)}
+                {lugar.foto_ref && (
+                  <div className='flex justify-center mt-2'>
+                    <img 
+                      src={`${API_URL}/api/foto?photo_ref=${lugar.foto_ref}`} 
+                      alt="Foto del lugar"
+                      className="rounded-lg shadow-md w-full max-w-[200px] h-auto object-cover" 
+                    />
+                  </div>
+                )}
               </div>
 
+              {/* Wiki información */}
               {wiki && (
-                <div className='max-w-[450px] h-full flex flex-col'>
-                  {translatedWiki || wiki}
+                <div className='bg-white p-3 rounded-lg shadow-md h-fit'>
+                  <h2 className="text-lg font-semibold mb-2">Descripción</h2>
+                  <div className='prose prose-sm'>
+                    <p className="text-sm text-gray-700">{translatedWiki || wiki}</p>
+                  </div>
                 </div>
               )}
 
+              {/* Información del clima */}
               {clima && (
-                <div className='h-full flex flex-col justify-center'>
-                  <p>🌡️ {clima.temperatura}°C - {clima.descripcion}</p>
-                  <p>🌧️ Lluvia: {clima.lluvia ? 'Si' : 'No'}</p>
-                  <p>💧 Humedad: {clima.humedad}%</p>
-                  <p>💨 Viento: {clima.viento} km/h</p>
-                  <p>🥵 Sensacion: {clima.sensacion_unidad}ºC - {clima.sensacion}</p>
+                <div className='bg-white p-3 rounded-lg shadow-md h-fit'>
+                  <h2 className="text-lg font-semibold mb-3">Clima</h2>
+                  <div className='space-y-1 text-sm'>
+                    <p>🌡️ {clima.temperatura}°C - {clima.descripcion}</p>
+                    <p>🌧️ Lluvia: {clima.lluvia ? 'Si' : 'No'}</p>
+                    <p>💧 Humedad: {clima.humedad}%</p>
+                    <p>💨 Viento: {clima.viento} km/h</p>
+                    <p>🥵 Sensación: {clima.sensacion_unidad}ºC - {clima.sensacion}</p>
+                  </div>
                 </div>
-                
               )}
             </div>
-
-        
-        )}
-
-        {lugar && (
-          <div className='flex w-full justify-center items-center pt-6'>
-            <MapWithPlaces
-              destination={lugar.nombre}
-              client:load
-              onLanguageChange={handleLanguageChange}
-              />
           </div>
-        )}
+          
+          {lugar && (
+            <div className='w-full max-w-5xl mx-auto'>
+              <MapWithPlaces
+                destination={lugar.nombre}
+                client:load
+                onLanguageChange={handleLanguageChange}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
-      </div>
-  </div>
+// Componente SearchForm extraído para reutilización
+function SearchForm({ inputRef, query, setQuery, loading, handleSubmit, className }) {
+  return (
+    <form onSubmit={handleSubmit} className={`${className}`}>
+      <input
+        ref={inputRef}
+        className='flex-1 border-2 border-gray-300 rounded-md p-2 text-base shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+        type="text"
+        placeholder="Introduce un destino"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <button 
+        type="submit"
+        className='px-6 py-2 text-base cursor-pointer rounded-xl border-2 border-blue-600 hover:scale-105 bg-blue-500 hover:bg-blue-600 font-semibold text-white transition-all shadow-md whitespace-nowrap'
+      >
+        {loading ? "Buscando..." : "Buscar"}
+      </button>
+    </form>
   );
 }

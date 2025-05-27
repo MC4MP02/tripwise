@@ -239,34 +239,43 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
     }
   };
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="fixed top-4 right-4 z-50">
+    <div className="flex flex-col items-center w-full max-w-full">
+      <div className="absolute top-4 right-4 z-50">
         <GlobalLanguageSelector
           currentLanguage={currentLanguage}
           onLanguageChange={handleLanguageChange}
         />
-      </div>      {!loading && (
-        <button 
-          onClick={handleToggleResumen}
-          className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:scale-110 hover:bg-blue-600 transition-all duration-300"
-          disabled={loading}
-        > 
-          {loading ? translatedTexts.buttons.generating : translatedTexts.buttons.generate}
-        </button>
-      )}
-      {loading && (
-        <div className="loader"></div>
-      )}      <div className="flex flex-row items-center w-full justify-center gap-5">
-        <div className={`flex flex-col items-center justify-center gap-4 my-4 ${textoIA ? "w-1/2" : "w-full"}`}>
-          <div className="flex flex-wrap gap-2 mt-4">
+      </div>
+
+      {/* Botón generar itinerario */}
+      <div className="w-full flex justify-center mb-4">
+        {!loading ? (
+          <button 
+            onClick={handleToggleResumen}
+            className="px-6 py-2 bg-blue-500 text-white text-sm rounded cursor-pointer hover:bg-blue-600 transition-all duration-300"
+            disabled={loading}
+          > 
+            {loading ? translatedTexts.buttons.generating : translatedTexts.buttons.generate}
+          </button>
+        ) : (
+          <div className="loader scale-75"></div>
+        )}
+      </div>
+
+      {/* Layout principal: Filtros + Mapa + Itinerario */}
+      <div className="w-full flex flex-col lg:flex-row gap-4">
+        {/* Contenedor para filtros y mapa */}
+        <div className="flex-1 flex flex-row gap-4">
+          {/* Filtros centrados verticalmente */}
+          <div className="hidden lg:flex flex-col justify-center gap-2">
             {translatedTexts.placeTypes.map(({ type, label }) => (
               <button
                 key={type}
                 onClick={() => handleCheckboxChange(type)}
-                className={`px-4 py-2 rounded ${
+                className={`px-3 py-2 text-sm rounded transition-colors whitespace-nowrap ${
                   selectedTypes.includes(type)
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200"
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
               >
                 {label}
@@ -274,14 +283,47 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
             ))}
           </div>
 
-          <div ref={mapRef} style={{ width: "100%", height: "500px" }} />
+          {/* Filtros móviles - mostrar en la parte superior en dispositivos pequeños */}
+          <div className="flex lg:hidden flex-wrap gap-2 mb-4 justify-center w-full">
+            {translatedTexts.placeTypes.map(({ type, label }) => (
+              <button
+                key={type}
+                onClick={() => handleCheckboxChange(type)}
+                className={`px-3 py-2 text-sm rounded transition-colors ${
+                  selectedTypes.includes(type)
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-200 hover:bg-gray-300"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Mapa */}
+          <div className="flex-1">
+            <div 
+              ref={mapRef} 
+              className="w-full h-[350px] rounded-lg shadow-md" 
+            />
+          </div>
         </div>
+
+        {/* Itinerario */}
         {textoIA && (
-          <div className="w-1/2 p-6 bg-white border-l border-gray-300 overflow-auto rounded shadow">
-            <h2 className="text-xl font-semibold mb-4">{translatedTexts.buttons.suggestedItinerary}</h2>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {translatedTexts.itinerary || textoIA}
-            </p>
+          <div className="lg:w-2/5 flex flex-col">
+            <div className="bg-white rounded-lg shadow-md h-[350px] overflow-hidden flex flex-col">
+              <div className="px-4 py-3 border-b bg-white">
+                <h2 className="text-lg font-semibold">
+                  {translatedTexts.buttons.suggestedItinerary}
+                </h2>
+              </div>
+              <div className="p-4 overflow-y-auto flex-1">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {translatedTexts.itinerary || textoIA}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
