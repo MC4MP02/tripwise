@@ -3,7 +3,7 @@ import requests
 
 from services.google_places import get_places
 from services.weather import get_weather
-from services.deepL import translate_text
+from services.deepL import translate_text, get_supported_languages
 
 from dotenv import load_dotenv
 import os
@@ -37,7 +37,7 @@ def translate():
 
 @app.route('/api/languages')
 def languages():
-    return jsonify(translate_text.SUPPORTED_LANGUAGES)
+    return jsonify(get_supported_languages())
 
 @app.route('/api/ia')
 def ia_request():
