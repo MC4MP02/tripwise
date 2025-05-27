@@ -7,7 +7,9 @@ export default function SearchBar() {
   const [lugar, setLugar] = useState(null);
   const [clima, setClima] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [wiki, setWiki] = useState(null)
+  const [wiki, setWiki] = useState(null);
+  const [translatedWiki, setTranslatedWiki] = useState(null);
+  const [currentLanguage, setCurrentLanguage] = useState("ES");
 
   const inputRef = useRef(null);
 
@@ -20,11 +22,6 @@ export default function SearchBar() {
 
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
-          /* if (place.formatted_address) {
-            setQuery(place.formatted_address);
-          } else if (place.name) {
-            setQuery(place.name);
-          } */
           setQuery(place.name);
         });
 
@@ -35,11 +32,41 @@ export default function SearchBar() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (wiki && currentLanguage !== "ES") {
+      translateWiki(currentLanguage);
+    } else if (currentLanguage === "ES") {
+      setTranslatedWiki(null);
+    }
+  }, [wiki, currentLanguage]);
+
+  const translateWiki = async (language) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/translate?text=${encodeURIComponent(wiki)}&lang=${language}`
+      );
+      const data = await response.json();
+      setTranslatedWiki(data.translated_text);
+    } catch (error) {
+      console.error('Error translating wiki:', error);
+    }
+  };
+
+  const handleLanguageChange = async (newLanguage) => {
+    setCurrentLanguage(newLanguage);
+    if (newLanguage === "ES") {
+      setTranslatedWiki(null);
+    } else if (wiki) {
+      await translateWiki(newLanguage);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();    
     if (!query) return;
 
     setLoading(true);
+    setTranslatedWiki(null);
 
     try {
       // Llamada al backend: info del lugar
@@ -48,17 +75,22 @@ export default function SearchBar() {
       setLugar(dataLugar);
 
       // Llamada al backend: wiki
-      const resWiki = await fetch(`http://localhost:5000/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}`)
+      const resWiki = await fetch(`http://localhost:5000/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}`);
       const dataWiki = await resWiki.json();
-      setWiki(dataWiki)
+      setWiki(dataWiki.extract);
+
+      // Si el idioma actual no es español, traducir inmediatamente
+      if (currentLanguage !== "ES") {
+        await translateWiki(currentLanguage);
+      }
 
       // Llamada al backend: clima
-      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(dataLugar["direccion"]).normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`);
+      const resClima = await fetch(`http://localhost:5000/api/weather?city=${encodeURIComponent(query)}`);
       const dataClima = await resClima.json();
       setClima(dataClima);
 
-    } catch (err) {
-      console.error("Error al buscar:", err);
+    } catch (error) {
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -121,7 +153,7 @@ export default function SearchBar() {
 
               {wiki && (
                 <div className='max-w-[450px] h-full flex flex-col'>
-                  {wiki["extract"]}
+                  {translatedWiki || wiki}
                 </div>
               )}
 
@@ -145,6 +177,7 @@ export default function SearchBar() {
             <MapWithPlaces
               destination={lugar.nombre}
               client:load
+              onLanguageChange={handleLanguageChange}
               />
           </div>
         )}

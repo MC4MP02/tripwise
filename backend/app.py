@@ -3,7 +3,7 @@ import requests
 
 from services.google_places import get_places
 from services.weather import get_weather
-from services.deepL import translate_text
+from services.deepL import translate_text, get_supported_languages
 
 from dotenv import load_dotenv
 import os
@@ -35,6 +35,39 @@ def translate():
     lang = request.args.get('lang', 'EN')
     return jsonify(translate_text(text, lang))
 
+@app.route('/api/languages')
+def languages():
+    return jsonify(get_supported_languages())
+
+@app.route('/api/ia')
+def ia_request():
+    lugar = request.args.get('lugar')
+    if not lugar:
+        return "Falta el Lugar", 400
+    
+    url = f"https://openrouter.ai/api/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+    }
+
+    data = {
+        "model": "meta-llama/llama-3.3-8b-instruct:free",
+        "messages": [
+            {
+                "role": "user",
+                "content": f"Dame recomendaciones de itinerarios en {lugar}. Quiero que lo hagas MUY resumido y que respondas directamente y en español."
+            }
+        ],
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code != 200:
+        return {"Error en la peticion": response.content}
+    
+    return Response(response.content, content_type=response.headers['Content-Type'])
+
 @app.route('/api/foto')
 def obtener_foto():
     photo_ref = request.args.get("photo_ref")
@@ -62,35 +95,6 @@ def wiki():
 
     if response.status_code != 200:
         return "Error en la peticion"
-    
-    return Response(response.content, content_type=response.headers['Content-Type'])
-
-@app.route('/api/ia')
-def ia():
-    lugar = request.args.get('lugar')
-    if not lugar:
-        return "Falta el Lugar", 400
-    
-    url = f"https://openrouter.ai/api/v1/chat/completions"
-
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    }
-
-    data = {
-        "model": "meta-llama/llama-3.3-8b-instruct:free",
-        "messages": [
-            {
-                "role": "user",
-                "content": f"Dame recomendaciones de itinerarios en {lugar}. Quiero que lo hagas MUY resumido y que respondas directamente y en español."
-            }
-        ],
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code != 200:
-        return {"Error en la peticion": response.content}
     
     return Response(response.content, content_type=response.headers['Content-Type'])
 
