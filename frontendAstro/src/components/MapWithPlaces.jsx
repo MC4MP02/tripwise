@@ -260,13 +260,11 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
         ) : (
           <div className="loader scale-75"></div>
         )}
-      </div>
-
-      {/* Layout principal: Filtros + Mapa + Itinerario */}
+      </div>      {/* Layout principal: Filtros + Mapa + Itinerario */}
       <div className="w-full flex flex-col lg:flex-row gap-4">
         {/* Contenedor para filtros y mapa */}
-        <div className="flex-1 flex flex-row gap-4">
-          {/* Filtros centrados verticalmente */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-4">
+          {/* Filtros para escritorio */}
           <div className="hidden lg:flex flex-col justify-center gap-2">
             {translatedTexts.placeTypes.map(({ type, label }) => (
               <button
@@ -283,29 +281,30 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
             ))}
           </div>
 
-          {/* Filtros móviles - mostrar en la parte superior en dispositivos pequeños */}
-          <div className="flex lg:hidden flex-wrap gap-2 mb-4 justify-center w-full">
-            {translatedTexts.placeTypes.map(({ type, label }) => (
-              <button
-                key={type}
-                onClick={() => handleCheckboxChange(type)}
-                className={`px-3 py-2 text-sm rounded transition-colors ${
-                  selectedTypes.includes(type)
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-200 hover:bg-gray-300"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Mapa */}
-          <div className="flex-1">
-            <div 
-              ref={mapRef} 
-              className="w-full h-[350px] rounded-lg shadow-md" 
-            />
+          {/* Contenedor de filtros móviles y mapa */}
+          <div className="flex-1 flex flex-col gap-4">
+            {/* Filtros móviles */}
+            <div className="flex lg:hidden flex-wrap gap-2 justify-center">
+              {translatedTexts.placeTypes.map(({ type, label }) => (
+                <button
+                  key={type}
+                  onClick={() => handleCheckboxChange(type)}
+                  className={`px-3 py-2 text-sm rounded transition-colors ${
+                    selectedTypes.includes(type)
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>            {/* Mapa */}
+            <div className="w-full">
+              <div 
+                ref={mapRef} 
+                className="w-full h-[350px] rounded-lg shadow-md" 
+              />
+            </div>
           </div>
         </div>
 
