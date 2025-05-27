@@ -149,12 +149,10 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
           ...prev,
           itinerary: data.translated_text || textoIA
         }));
-      }
-
-      const buttonTexts = DEFAULT_TEXTS.ES;
+      }      const buttonTexts = DEFAULT_TEXTS.ES;
       Object.entries(buttonTexts).forEach(([key, text]) => {
         translations.push(
-          fetch(`http://localhost:5000/api/translate?text=${encodeURIComponent(text)}&lang=${newLanguage}`)
+          fetch(`${API_URL}/api/translate?text=${encodeURIComponent(text)}&lang=${newLanguage}`)
             .then(res => res.json())
             .then(data => ({ type: 'button', key, text: data.translated_text || text }))
         );
@@ -163,7 +161,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
       // Preparar traducciones de tipos de lugares
       PLACE_TYPES.forEach((type) => {
         translations.push(
-          fetch(`http://localhost:5000/api/translate?text=${encodeURIComponent(type.label.split(' ')[1])}&lang=${newLanguage}`)
+          fetch(`${API_URL}/api/translate?text=${encodeURIComponent(type.label.split(' ')[1])}&lang=${newLanguage}`)
             .then(res => res.json())
             .then(data => ({ 
               type: 'placeType', 
@@ -196,13 +194,11 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
             label: `${type.label.split(' ')[0]} ${data.translated_text || type.label.split(' ')[1]}`
           };
         })
-      );
-
-      setTranslatedTexts(prev => ({
+      );      setTranslatedTexts(prev => ({
         ...prev,
         placeTypes: translatedTypes,
         buttons: translatedButtons
-      });
+      }));
     } catch (error) {
       console.error('Translation error:', error);
     } finally {
@@ -279,7 +275,8 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
           </div>
 
           <div ref={mapRef} style={{ width: "100%", height: "500px" }} />
-        </div>        {textoIA && (
+        </div>
+        {textoIA && (
           <div className="w-1/2 p-6 bg-white border-l border-gray-300 overflow-auto rounded shadow">
             <h2 className="text-xl font-semibold mb-4">{translatedTexts.buttons.suggestedItinerary}</h2>
             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
