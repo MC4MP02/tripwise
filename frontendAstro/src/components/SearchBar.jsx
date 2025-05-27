@@ -44,7 +44,7 @@ export default function SearchBar() {
   const translateWiki = async (language) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/translate?text=${encodeURIComponent(wiki)}&lang=${language}`
+        `${API_URL}/api/translate?text=${encodeURIComponent(wiki)}&lang=${language}`
       );
       const data = await response.json();
       setTranslatedWiki(data.translated_text);

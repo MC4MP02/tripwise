@@ -1,11 +1,19 @@
 import os
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def get_weather(city: str):
-    api_key = os.getenv("ACCUWEATHER_API_KEY")
+    api_key = os.environ.get("ACCUWEATHER_API_KEY")
+    if not api_key:
+        print("Warning: ACCUWEATHER_API_KEY not set")
+        return {
+            "temperatura": "-",
+            "descripcion": "-",
+            "lluvia": False,
+            "humedad": "-",
+            "viento": "-",
+            "sensacion": "-",
+            "sensacion_unidad": "-",
+        }
 
     # 1. Obtener location key
     location_url = "http://dataservice.accuweather.com/locations/v1/cities/search"

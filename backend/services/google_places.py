@@ -1,11 +1,12 @@
 import os
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def get_places(destination: str):
-    api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        print("Warning: GOOGLE_API_KEY not set")
+        return []
+
     # Es de pago pero tiene un "plan gratuito" MIRAR BIEN
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json" 
     params = {

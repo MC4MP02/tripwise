@@ -1,10 +1,7 @@
 import os
 import requests
-from dotenv import load_dotenv
 from typing import Dict, Union
 
-
-load_dotenv()
 
 SUPPORTED_LANGUAGES = {
     'BG': 'Bulgarian',
@@ -41,13 +38,11 @@ SUPPORTED_LANGUAGES = {
 def get_supported_languages() -> Dict[str, str]:
     return SUPPORTED_LANGUAGES
 
-def translate_text(text: str, target_lang: str = "EN") -> Dict[str, Union[str, dict]]:
-    if not text:
-        return {"error": "No text provided"}
-
-    api_key = os.getenv("DEEPL_API_KEY")
+def translate_text(text: str, target_lang: str = "EN") -> Dict[str, Union[str, bool]]:
+    api_key = os.environ.get("DEEPL_API_KEY")
     if not api_key:
-        return {"error": "DeepL API key not found"}
+        print("Warning: DEEPL_API_KEY not set")
+        return {"translated_text": text, "success": False}
 
     if target_lang not in SUPPORTED_LANGUAGES:
         return {"error": f"Unsupported language: {target_lang}"}

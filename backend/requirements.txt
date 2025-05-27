@@ -1,5 +1,4 @@
-functions-framework
-python-dotenv
-requests
-flask
-flask-cors
+functions-framework==3.*
+flask==3.0.*
+flask-cors==4.0.*
+requests==2.31.*

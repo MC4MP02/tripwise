@@ -1,5 +1,7 @@
 import { createContext, useContext, useState } from 'react';
 
+const API_URL = "https://europe-west1-valid-unfolding-461111-m1.cloudfunctions.net/tripwise-backend";
+
 const defaultTranslations = {
   'EN': {
     'Select language': 'Select language',
@@ -45,7 +47,7 @@ export function LanguageProvider({ children }) {
     const translatedTexts = {};
     for (const [key, text] of Object.entries(texts)) {
       try {
-        const response = await fetch(`http://localhost:5000/api/translate?text=${encodeURIComponent(text)}&lang=${currentLanguage}`);
+        const response = await fetch(`${API_URL}/api/translate?text=${encodeURIComponent(text)}&lang=${currentLanguage}`);
         const data = await response.json();
         translatedTexts[key] = data.translated_text || text;
       } catch (error) {

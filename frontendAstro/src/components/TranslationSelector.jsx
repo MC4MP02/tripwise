@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API_URL = "https://europe-west1-valid-unfolding-461111-m1.cloudfunctions.net/tripwise-backend";
+
 export default function TranslationSelector({ text, onTranslated }) {
   const [languages, setLanguages] = useState([]);
   const [selectedLang, setSelectedLang] = useState('');
@@ -9,7 +11,7 @@ export default function TranslationSelector({ text, onTranslated }) {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/languages');
+        const response = await fetch(`${API_URL}/api/languages`);
         const data = await response.json();
         const languagesList = Object.entries(data).map(([code, name]) => ({
           code,
@@ -32,7 +34,7 @@ export default function TranslationSelector({ text, onTranslated }) {
     setError('');
     
     try {
-      const response = await fetch(`http://localhost:5000/api/translate?text=${encodeURIComponent(text)}&lang=${selectedLang}`);
+      const response = await fetch(`${API_URL}/api/translate?text=${encodeURIComponent(text)}&lang=${selectedLang}`);
       const data = await response.json();
       
       if (data.error) {
