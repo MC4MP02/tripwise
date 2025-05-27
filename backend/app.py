@@ -42,28 +42,31 @@ def languages():
 @app.route('/api/ia')
 def ia_request():
     lugar = request.args.get('lugar')
+    if not lugar:
+        return "Falta el Lugar", 400
     
-    url = "https://openrouter.ai/api/v1/chat/completions"
+    url = f"https://openrouter.ai/api/v1/chat/completions"
+
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "HTTP-Referer": "http://localhost:5000",
-        "Content-Type": "application/json"
     }
-    prompt = f"""Genera exactamente entre 3 y 5 actividades turísticas imprescindibles para visitar {lugar}.
-    Responde SOLAMENTE en este formato sin ningún texto adicional:
 
-    - Actividad 1
-    - Actividad 2
-    - Actividad 3
-    - ... (hasta 5 actividades)"""
-    
     data = {
-        "model": "mistralai/mistral-7b-instruct",
-        "messages": [{"role": "user", "content": prompt}]
+        "model": "meta-llama/llama-3.3-8b-instruct:free",
+        "messages": [
+            {
+                "role": "user",
+                "content": f"Dame recomendaciones de itinerarios en {lugar}. Quiero que lo hagas MUY resumido y que respondas directamente y en español."
+            }
+        ],
     }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code != 200:
+        return {"Error en la peticion": response.content}
     
-    response = requests.post(url, json=data, headers=headers)
-    return response.json()
+    return Response(response.content, content_type=response.headers['Content-Type'])
 
 @app.route('/api/foto')
 def obtener_foto():
@@ -92,35 +95,6 @@ def wiki():
 
     if response.status_code != 200:
         return "Error en la peticion"
-    
-    return Response(response.content, content_type=response.headers['Content-Type'])
-
-@app.route('/api/ia')
-def ia():
-    lugar = request.args.get('lugar')
-    if not lugar:
-        return "Falta el Lugar", 400
-    
-    url = f"https://openrouter.ai/api/v1/chat/completions"
-
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    }
-
-    data = {
-        "model": "meta-llama/llama-3.3-8b-instruct:free",
-        "messages": [
-            {
-                "role": "user",
-                "content": f"Dame recomendaciones de itinerarios en {lugar}. Quiero que lo hagas MUY resumido y que respondas directamente y en español."
-            }
-        ],
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code != 200:
-        return {"Error en la peticion": response.content}
     
     return Response(response.content, content_type=response.headers['Content-Type'])
 

@@ -11,12 +11,7 @@ const DEFAULT_TEXTS = {
   ES: {
     generate: "Generar itinerario",
     generating: "Generando...",
-    translating: "Traduciendo...",
-    weather: "Información del tiempo",
-    temperature: "Temperatura",
-    humidity: "Humedad",
-    wind: "Viento",
-    rain: "Lluvia"
+    suggestedItinerary: "Itinerario sugerido"
   }
 };
 
@@ -30,14 +25,11 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
   const [markers, setMarkers] = useState([]);
   const [textoIA, setTextoIA] = useState("");
   const [currentLanguage, setCurrentLanguage] = useState("ES");
-  const [loading, setLoading] = useState(false);
-  const [translating, setTranslating] = useState(false);
-  const [weatherInfo, setWeatherInfo] = useState(null);
+  const [loading, setLoading] = useState(false);  const [translating, setTranslating] = useState(false);
   const [translatedTexts, setTranslatedTexts] = useState({
     itinerary: "",
     placeTypes: PLACE_TYPES,
-    buttons: DEFAULT_TEXTS.ES,
-    weather: ""
+    buttons: DEFAULT_TEXTS.ES
   });
 
   // Reset textoIA when destination changes
@@ -145,10 +137,9 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
       });
       setTranslating(false);
       return;
-    }
-
-    try {
-      // Traducir textos existentes
+    }    try {
+      const translations = [];
+      
       if (textoIA) {
         const response = await fetch(
           `${API_URL}/api/translate?text=${encodeURIComponent(textoIA)}&lang=${newLanguage}`
@@ -160,8 +151,30 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
         }));
       }
 
-      // Traducir botones y etiquetas
       const buttonTexts = DEFAULT_TEXTS.ES;
+      Object.entries(buttonTexts).forEach(([key, text]) => {
+        translations.push(
+          fetch(`http://localhost:5000/api/translate?text=${encodeURIComponent(text)}&lang=${newLanguage}`)
+            .then(res => res.json())
+            .then(data => ({ type: 'button', key, text: data.translated_text || text }))
+        );
+      });
+
+      // Preparar traducciones de tipos de lugares
+      PLACE_TYPES.forEach((type) => {
+        translations.push(
+          fetch(`http://localhost:5000/api/translate?text=${encodeURIComponent(type.label.split(' ')[1])}&lang=${newLanguage}`)
+            .then(res => res.json())
+            .then(data => ({ 
+              type: 'placeType', 
+              originalType: type,
+              text: data.translated_text || type.label.split(' ')[1]
+            }))
+        );
+      });
+
+
+      const results = await Promise.all(translations);      
       const translatedButtons = {};
       for (const [key, text] of Object.entries(buttonTexts)) {
         const response = await fetch(
@@ -189,7 +202,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
         ...prev,
         placeTypes: translatedTypes,
         buttons: translatedButtons
-      }));
+      });
     } catch (error) {
       console.error('Translation error:', error);
     } finally {
@@ -229,49 +242,47 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
       setLoading(false);
     }
   };
-
   return (
-    <div className="flex flex-col md:flex-row gap-4 p-4">
+    <div className="flex flex-col items-center w-full">
       <div className="fixed top-4 right-4 z-50">
         <GlobalLanguageSelector
           currentLanguage={currentLanguage}
           onLanguageChange={handleLanguageChange}
         />
-      </div>
-        <div className="w-full md:w-3/4">
-        <div ref={mapRef} style={{ height: "500px", width: "100%" }}></div>
-        
-        <div className="flex flex-wrap gap-2 mt-4">
-          {translatedTexts.placeTypes.map(({ type, label }) => (
-            <button
-              key={type}
-              onClick={() => handleCheckboxChange(type)}
-              className={`px-4 py-2 rounded ${
-                selectedTypes.includes(type)
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>      <div className="w-full md:w-1/4">
-        {!textoIA && (
-          <button
-            onClick={handleToggleResumen}
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded mb-4"
-            disabled={loading || translating}
-          >
-            {loading ? translatedTexts.buttons.generating : 
-             translating ? translatedTexts.buttons.translating :
-             translatedTexts.buttons.generate}
-          </button>
-        )}
+      </div>      {!loading && (
+        <button 
+          onClick={handleToggleResumen}
+          className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:scale-110 hover:bg-blue-600 transition-all duration-300"
+          disabled={loading}
+        > 
+          {loading ? translatedTexts.buttons.generating : translatedTexts.buttons.generate}
+        </button>
+      )}
+      {loading && (
+        <div className="loader"></div>
+      )}      <div className="flex flex-row items-center w-full justify-center gap-5">
+        <div className={`flex flex-col items-center justify-center gap-4 my-4 ${textoIA ? "w-1/2" : "w-full"}`}>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {translatedTexts.placeTypes.map(({ type, label }) => (
+              <button
+                key={type}
+                onClick={() => handleCheckboxChange(type)}
+                className={`px-4 py-2 rounded ${
+                  selectedTypes.includes(type)
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-        {textoIA && (
-          <div className="bg-white p-4 rounded shadow">
-            <p className="mb-4 whitespace-pre-line">
+          <div ref={mapRef} style={{ width: "100%", height: "500px" }} />
+        </div>        {textoIA && (
+          <div className="w-1/2 p-6 bg-white border-l border-gray-300 overflow-auto rounded shadow">
+            <h2 className="text-xl font-semibold mb-4">{translatedTexts.buttons.suggestedItinerary}</h2>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
               {translatedTexts.itinerary || textoIA}
             </p>
           </div>
