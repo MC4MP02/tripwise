@@ -22,11 +22,6 @@ export default function SearchBar() {
 
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
-          /* if (place.formatted_address) {
-            setQuery(place.formatted_address);
-          } else if (place.name) {
-            setQuery(place.name);
-          } */
           setQuery(place.name);
         });
 
