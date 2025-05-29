@@ -67,7 +67,7 @@ TripWise nace de la necesidad de contar con una **plataforma única** que permit
 
 5. Inicia el backend:
    ```bash
-   pyhton app.py
+   python app.py
    ```
 
 > 💡 Asegúrate de configurar tus claves de API correctamente en el archivo `.env` o en la configuración correspondiente del proyecto.
