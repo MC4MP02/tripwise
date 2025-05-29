@@ -2,8 +2,6 @@
 
 **TripWise** es una aplicación web desarrollada durante un *Hackathon* que facilita la planificación de viajes de forma rápida, visual y centralizada. Permite consultar información útil sobre cualquier ubicación del mundo combinando datos de múltiples fuentes públicas a través de APIs.
 
-![TripWise Screenshot](https://github.com/MC4MP02/tripwise/raw/main/screenshot.png) <!-- Reemplaza con una captura real del proyecto -->
-
 ---
 
 ## ✨ Funcionalidades
@@ -33,7 +31,7 @@ TripWise nace de la necesidad de contar con una **plataforma única** que permit
 
 ## 🌐 Tecnologías utilizadas
 
-- 🔥 **Frontend:** Angular  
+- 🔥 **Frontend:** Astro + React  
 - 🎨 **Estilos:** Tailwind CSS  
 - ⚙️ **Backend:** Python  
 - 🗺️ **APIs externas:**
@@ -41,6 +39,7 @@ TripWise nace de la necesidad de contar con una **plataforma única** que permit
   - Google Places API  
   - AccuWeather API  
   - DeepL API (traducción automática)
+  - Wikipedia
 
 ---
 
@@ -53,7 +52,7 @@ TripWise nace de la necesidad de contar con una **plataforma única** que permit
 
 2. Accede a la carpeta del proyecto:
    ```bash
-   cd tripwise
+   cd tripwise/frontendAstro
    ```
 
 3. Instala las dependencias:
@@ -63,20 +62,15 @@ TripWise nace de la necesidad de contar con una **plataforma única** que permit
 
 4. Inicia la aplicación en modo desarrollo:
    ```bash
-   pnpm start
+   pnpm run dev
+   ```
+
+5. Inicia el backend:
+   ```bash
+   pyhton app.py
    ```
 
 > 💡 Asegúrate de configurar tus claves de API correctamente en el archivo `.env` o en la configuración correspondiente del proyecto.
-
----
-
-## 📸 Capturas de pantalla
-
-<!-- Sustituye las rutas por capturas reales del proyecto -->
-<p float="left">
-  <img src="https://github.com/MC4MP02/tripwise/raw/main/screenshot1.png" width="45%" />
-  <img src="https://github.com/MC4MP02/tripwise/raw/main/screenshot2.png" width="45%" />
-</p>
 
 ---
 
@@ -85,13 +79,9 @@ TripWise nace de la necesidad de contar con una **plataforma única** que permit
 Proyecto desarrollado durante el Hackathon por:
 
 - Marc [@MC4MP02](https://github.com/MC4MP02)  
-*(Añade a tus compañeros si participaron en el desarrollo)*
-
----
-
-## 📄 Licencia
-
-Este proyecto está disponible bajo la licencia [MIT](LICENSE).
+- Pol [@polcaparross](https://github.com/polcaparross)
+- Adil [@1635070](https://github.com/1635070)
+- Pau [@Leyva03](https://github.com/Leyva03)
 
 ---
 
