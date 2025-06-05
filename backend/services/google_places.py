@@ -2,12 +2,13 @@ import os
 import requests
 
 def get_places(destination: str):
+    # Buscar información de un lugar usando Google Places API
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         print("Warning: GOOGLE_API_KEY not set")
         return []
 
-    # Es de pago pero tiene un "plan gratuito" MIRAR BIEN
+    # Buscar lugar por texto en Google Places
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json" 
     params = {
         "query": destination,
@@ -22,6 +23,7 @@ def get_places(destination: str):
     
     if data["results"]:
         lugar = data["results"][0]
+        # Extraer datos relevantes del primer resultado
         resultado = {
             "nombre": lugar.get("name"),
             "direccion": lugar.get("formatted_address"),

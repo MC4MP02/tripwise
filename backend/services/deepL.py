@@ -39,6 +39,7 @@ def get_supported_languages() -> Dict[str, str]:
     return SUPPORTED_LANGUAGES
 
 def translate_text(text: str, target_lang: str = "EN") -> Dict[str, Union[str, bool]]:
+    # Traducir texto usando la API de DeepL
     api_key = os.environ.get("DEEPL_API_KEY")
     if not api_key:
         print("Warning: DEEPL_API_KEY not set")
@@ -47,6 +48,7 @@ def translate_text(text: str, target_lang: str = "EN") -> Dict[str, Union[str, b
     if target_lang not in SUPPORTED_LANGUAGES:
         return {"error": f"Unsupported language: {target_lang}"}
 
+    # Configurar petición a DeepL API
     url = "https://api-free.deepl.com/v2/translate"
     headers = {
         "Authorization": f"DeepL-Auth-Key {api_key}",

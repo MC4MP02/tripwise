@@ -40,7 +40,7 @@ def handle_errors(f):
 
 @functions_framework.http
 def tripwise_backend(request):
-    # CORS headers
+    # Manejar peticiones CORS del frontend
     if request.method == 'OPTIONS':
         headers = {
             'Access-Control-Allow-Origin': '*',
@@ -60,14 +60,17 @@ def tripwise_backend(request):
         path = path[1:]  # Remove leading slash
 
     try:
+        # Endpoint para buscar lugares con Google Places
         if path == 'api/places':
             destination = request.args.get('destination')
             return (jsonify(get_places(destination)), 200, headers)
         
+        # Endpoint para obtener información del clima
         elif path == 'api/weather':
             city = request.args.get('city')
             return (jsonify(get_weather(city)), 200, headers)
         
+        # Endpoint para traducir texto
         elif path == 'api/translate':
             text = request.args.get('text')
             lang = request.args.get('lang', 'EN')
@@ -76,16 +79,19 @@ def tripwise_backend(request):
         elif path == 'api/languages':
             return (jsonify(get_supported_languages()), 200, headers)
         
+        # Endpoint para generar itinerarios con IA
         elif path == 'api/ia':
             lugar = request.args.get('lugar')
             if not lugar:
                 return (jsonify({"error": "Falta el Lugar"}), 400, headers)
             
+            # Configurar petición a OpenRouter API
             url = "https://openrouter.ai/api/v1/chat/completions"
             api_headers = {
                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                 "Content-Type": "application/json"
             }
+            # Crear prompt optimizado para generar itinerarios de viaje
             data = {
                 "model": "meta-llama/llama-3.3-8b-instruct:free",
                 "messages": [
@@ -99,21 +105,25 @@ def tripwise_backend(request):
             response.raise_for_status()
             return (response.json(), 200, headers)
         
+        # Endpoint para obtener fotos de Google Places
         elif path == 'api/foto':
             photo_ref = request.args.get("photo_ref")
             if not photo_ref:
                 return (jsonify({"error": "Falta el parámetro photo_reference"}), 400, headers)
             
+            # Obtener imagen desde Google Places Photo API
             url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photo_reference={photo_ref}&key={GOOGLE_API_KEY}"
             response = requests.get(url, stream=True)
             response.raise_for_status()
             return (response.content, 200, {'Content-Type': response.headers.get('Content-Type', 'image/jpeg'), **headers})
         
+        # Endpoint para obtener información de Wikipedia
         elif path == 'api/wiki':
             lugar = request.args.get('lugar')
             if not lugar:
                 return (jsonify({"error": "Falta el Lugar"}), 400, headers)
             
+            # Codificar el nombre del lugar para la URL de Wikipedia
             lugar_encoded = requests.utils.quote(lugar)
             url = f"https://es.wikipedia.org/api/rest_v1/page/summary/{lugar_encoded}"
             response = requests.get(url)

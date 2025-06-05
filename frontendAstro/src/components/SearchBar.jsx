@@ -14,6 +14,7 @@ export default function SearchBar() {
 
   const inputRef = useRef(null);
 
+  // Configurar autocompletado de Google Places en el input de búsqueda
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.google?.maps?.places?.Autocomplete && inputRef.current) {
@@ -33,6 +34,7 @@ export default function SearchBar() {
     return () => clearInterval(interval);
   }, []);
 
+  // Traducir información de Wikipedia cuando cambia el idioma
   useEffect(() => {
     if (wiki && currentLanguage !== "ES") {
       translateWiki(currentLanguage);
@@ -70,12 +72,12 @@ export default function SearchBar() {
     setTranslatedWiki(null);
 
     try {
-      // Llamada al backend: info del lugar
+      // Obtener información del lugar desde Google Places
       const resLugar = await fetch(`${API_URL}/api/places?destination=${encodeURIComponent(query)}`);
       const dataLugar = await resLugar.json();
       setLugar(dataLugar);
 
-      // Llamada al backend: wiki
+      // Obtener información de Wikipedia del lugar
       const resWiki = await fetch(`${API_URL}/api/wiki?lugar=${encodeURIComponent(dataLugar["nombre"].normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}`);
       const dataWiki = await resWiki.json();
       setWiki(dataWiki.extract);
@@ -85,7 +87,7 @@ export default function SearchBar() {
         await translateWiki(currentLanguage);
       }
 
-      // Llamada al backend: clima
+      // Obtener información del clima de la ciudad
       const resClima = await fetch(`${API_URL}/api/weather?city=${encodeURIComponent(query)}`);
       const dataClima = await resClima.json();
       setClima(dataClima);
@@ -97,6 +99,7 @@ export default function SearchBar() {
     }
   };
 
+  // Función para formatear y mostrar los tipos de lugares de forma legible
   function formatearTipos(tipos) {
     if (!tipos || !tipos.length) return "";
 

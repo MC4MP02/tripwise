@@ -8,9 +8,11 @@ export default function TranslationSelector({ text, onTranslated }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Cargar idiomas disponibles para traducción al montar el componente
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
+        // Obtener lista de idiomas desde el backend
         const response = await fetch(`${API_URL}/api/languages`);
         const data = await response.json();
         const languagesList = Object.entries(data).map(([code, name]) => ({
@@ -27,6 +29,7 @@ export default function TranslationSelector({ text, onTranslated }) {
     fetchLanguages();
   }, []);
 
+  // Función para traducir el texto seleccionado al idioma elegido
   const handleTranslate = async () => {
     if (!selectedLang) return;
     
@@ -34,12 +37,14 @@ export default function TranslationSelector({ text, onTranslated }) {
     setError('');
     
     try {
+      // Llamar a la API de traducción del backend
       const response = await fetch(`${API_URL}/api/translate?text=${encodeURIComponent(text)}&lang=${selectedLang}`);
       const data = await response.json();
       
       if (data.error) {
         setError(data.error);
       } else if (data.translated_text) {
+        // Devolver el texto traducido al componente padre
         onTranslated(data.translated_text);
       }
     } catch (error) {

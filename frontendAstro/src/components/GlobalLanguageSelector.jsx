@@ -6,9 +6,11 @@ export default function GlobalLanguageSelector({ currentLanguage, onLanguageChan
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Cargar lista de idiomas disponibles desde la API al montar el componente
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
+        // Obtener lista de idiomas soportados por DeepL desde el backend
         const response = await fetch(`${API_URL}/api/languages`);
         const data = await response.json();
         const languagesList = Object.entries(data).map(([code, name]) => ({
@@ -24,6 +26,7 @@ export default function GlobalLanguageSelector({ currentLanguage, onLanguageChan
     fetchLanguages();
   }, []);
 
+  // Selector de idiomas fijo en la esquina superior derecha de la pantalla
   return (
     <div className="fixed top-4 right-4 flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-md z-50">      <select
         className="p-2 border rounded-md text-sm"

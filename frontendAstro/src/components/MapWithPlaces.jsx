@@ -25,19 +25,20 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
   const [markers, setMarkers] = useState([]);
   const [textoIA, setTextoIA] = useState("");
   const [currentLanguage, setCurrentLanguage] = useState("ES");
-  const [loading, setLoading] = useState(false);  const [translating, setTranslating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [translatedTexts, setTranslatedTexts] = useState({
     itinerary: "",
     placeTypes: PLACE_TYPES,
     buttons: DEFAULT_TEXTS.ES
   });
 
-  // Reset textoIA when destination changes
+  // Resetear itinerario cuando cambia el destino
   useEffect(() => {
     setTextoIA("");
   }, [destination]);
 
-  // Inicializar el mapa
+  // Inicializar mapa de Google Maps con el destino
   useEffect(() => {
     if (!window.google || !destination) return;
 
@@ -59,24 +60,27 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
     });
   }, [destination]);
 
-  // Actualizar marcadores
+  // Actualizar marcadores en el mapa según los tipos seleccionados
   useEffect(() => {
     if (!map || !window.google) return;
 
+    // Limpiar marcadores existentes antes de añadir nuevos
     markers.forEach((m) => m.setMap(null));
     setMarkers([]);
 
     const service = new window.google.maps.places.PlacesService(map);
 
+    // Buscar lugares para cada tipo seleccionado
     selectedTypes.forEach((type) => {
       const request = {
         location: map.getCenter(),
-        radius: 1500,
+        radius: 1500, // Radio de búsqueda de 1.5km
         type: type
       };
 
       service.nearbySearch(request, (results, status) => {
         if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+          // Crear marcadores para cada lugar encontrado
           const newMarkers = results.map((place) => {
             const marker = new window.google.maps.Marker({
               map,
@@ -84,6 +88,7 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
               title: place.name,
             });
 
+            // Añadir evento click para mostrar información del lugar
             marker.addListener("click", () => {
               infoWindow.setContent(`
                 <div>
@@ -123,12 +128,14 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
     }
   };
 
+  // Función para manejar cambio de idioma y traducir todo el contenido
   const handleLanguageChange = async (newLanguage) => {
     if (newLanguage === currentLanguage) return;
     
     setTranslating(true);    setCurrentLanguage(newLanguage);
     onLanguageChange?.(newLanguage);
 
+    // Si se selecciona español, restaurar textos originales
     if (newLanguage === "ES") {
       setTranslatedTexts({
         itinerary: textoIA,
@@ -214,14 +221,17 @@ export default function MapWithPlaces({ destination, onLanguageChange }) {
     );
   };
 
+  // Función para generar itinerario personalizado usando IA
   const handleToggleResumen = async () => {
     setLoading(true);
     try {
+      // Llamar a la API de IA para generar itinerario del destino
       const textoSimulado = await fetch(`${API_URL}/api/ia?lugar=${encodeURIComponent(destination)}`);
       const dataSimulado = await textoSimulado.json();
       const itineraryText = dataSimulado.choices[0].message.content;
       setTextoIA(itineraryText);
 
+      // Si el idioma no es español, traducir el itinerario generado
       if (currentLanguage !== "ES") {
         const response = await fetch(
           `${API_URL}/api/translate?text=${encodeURIComponent(itineraryText)}&lang=${currentLanguage}`
